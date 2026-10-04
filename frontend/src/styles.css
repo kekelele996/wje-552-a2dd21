@@ -1,0 +1,113 @@
+:root {
+  color: #19332a;
+  background: #edf3ed;
+  font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #edf3ed; }
+button, input { font: inherit; }
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,.76), rgba(237,243,237,.9)),
+    url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=80") center/cover;
+}
+.auth-page section {
+  width: min(420px, calc(100vw - 32px));
+  padding: 34px;
+  background: #fffffb;
+  border: 1px solid #dbe6dc;
+  border-radius: 8px;
+}
+.auth-page h1 { margin: 12px 0 4px; font-size: 34px; letter-spacing: 0; }
+.hint { color: #65746c; font-size: 13px; }
+
+.shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+aside {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 26px 18px;
+  background: #17392d;
+  color: #f5f3e7;
+  display: flex;
+  flex-direction: column;
+}
+aside h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: 0; }
+aside p { color: #b8c7bd; margin: 0 0 28px; }
+nav { display: grid; gap: 8px; }
+nav a, .logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e8efe8;
+  text-decoration: none;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+nav a.active, nav a:hover, .logout:hover { background: #265d49; }
+.logout { margin-top: auto; }
+main { padding: 28px; overflow: hidden; }
+
+.page { max-width: 1440px; margin: 0 auto; }
+.page-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+.page-head h2 { margin: 0; font-size: 30px; letter-spacing: 0; }
+.page-head span { color: #64746c; }
+.metric-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.metric-card, .panel, .two-col > section, .plan-card {
+  background: #fffffb;
+  border: 1px solid #dbe6dc;
+  border-radius: 8px;
+  padding: 18px;
+}
+.metric-card { min-height: 142px; display: grid; align-content: space-between; }
+.metric-card span { color: #64746c; }
+.metric-card strong { display: block; font-size: 32px; letter-spacing: 0; }
+.metric-card small { margin-left: 4px; font-size: 14px; color: #64746c; }
+.metric-icon svg { color: #25745c; }
+.trend { display: inline-flex; align-items: center; gap: 4px; font-style: normal; color: #64746c; }
+.trend.up { color: #25745c; }
+.trend.down { color: #b55045; }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-bottom: 18px; }
+.chart { height: 330px; width: 100%; }
+.lower section h3, .panel h3 { margin-top: 0; }
+.task, .food-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e6eee6; padding: 10px 0; margin: 0; }
+.task span { color: #25745c; font-weight: 700; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.calendar-grid b { text-align: center; color: #64746c; font-size: 12px; }
+.calendar-grid button {
+  min-height: 70px;
+  border: 1px solid #dbe6dc;
+  background: #f7faf5;
+  border-radius: 6px;
+  text-align: left;
+  padding: 7px;
+  cursor: pointer;
+}
+.calendar-grid button.selected { outline: 2px solid #25745c; }
+.calendar-grid small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; }
+.green { color: #25745c; }
+.red { color: #b55045; }
+.gray { color: #7b857e; }
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.plan-card h3 { margin: 10px 0 6px; }
+.plan-card span { display: block; color: #64746c; margin: 8px 0 12px; }
+.meal { padding: 12px 0; border-bottom: 1px solid #e6eee6; }
+.meal p { margin: 8px 0 0; color: #46574e; }
+.toolbar { display: flex; gap: 12px; margin-bottom: 16px; }
+.form-panel .ant-form { gap: 10px; }
+.empty-state { padding: 28px; }
+
+@media (max-width: 980px) {
+  .shell { grid-template-columns: 1fr; }
+  aside { position: static; height: auto; }
+  .metric-row, .two-col { grid-template-columns: 1fr; }
+  main { padding: 18px; }
+}

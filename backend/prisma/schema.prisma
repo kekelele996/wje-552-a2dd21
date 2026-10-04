@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { USER COACH ADMIN }
+enum UserStatus { ACTIVE INACTIVE BANNED }
+enum PlanType { STRENGTH CARDIO FLEXIBILITY HIIT CUSTOM }
+enum PlanStatus { DRAFT ACTIVE PAUSED COMPLETED ARCHIVED }
+enum MealType { BREAKFAST LUNCH DINNER SNACK }
+enum MemberLevel { BASIC SILVER GOLD PLATINUM }
+enum MemberStatus { ACTIVE EXPIRED SUSPENDED }
+enum AuditModule { TRAINING DIET BODY MEMBER }
+
+model User {
+  id           String     @id @default(uuid())
+  username     String     @unique
+  passwordHash String     @map("password_hash")
+  name         String
+  email        String?    @unique
+  phone        String?
+  role         UserRole   @default(USER)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  trainingPlans TrainingPlan[]
+  dietRecords   DietRecord[]
+  bodyMetrics   BodyMetric[]
+  bodyGoal      BodyGoal?
+  member        Member?
+  auditLogs     AuditLog[]
+  students      CoachUser[] @relation("Coach")
+  coaches       CoachUser[] @relation("Student")
+
+  @@map("users")
+}
+
+model CoachUser {
+  id        String @id @default(uuid())
+  coachId  String @map("coach_id")
+  userId   String @map("user_id")
+  coach    User   @relation("Coach", fields: [coachId], references: [id])
+  user      User   @relation("Student", fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([coachId, userId])
+  @@map("coach_user")
+}
+
+model TrainingPlan {
+  id          String     @id @default(uuid())
+  userId      String     @map("user_id")
+  name        String
+  type        PlanType
+  startDate   DateTime   @map("start_date")
+  endDate     DateTime   @map("end_date")
+  status      PlanStatus @default(DRAFT)
+  description String?
+  completedAt DateTime?  @map("completed_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  user        User       @relation(fields: [userId], references: [id])
+  days        TrainingDay[]
+
+  @@index([userId, status])
+  @@map("training_plans")
+}
+
+model TrainingDay {
+  id        String @id @default(uuid())
+  planId    String @map("plan_id")
+  weekday   Int
+  title     String
+  completed Boolean @default(false)
+  plan      TrainingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  exercises TrainingExercise[]
+  @@map("training_days")
+}
+
+model Exercise {
+  id          String @id @default(uuid())
+  name        String
+  category    String
+  muscleGroup String @map("muscle_group")
+  createdAt   DateTime @default(now()) @map("created_at")
+  trainingExercises TrainingExercise[]
+  @@map("exercises")
+}
+
+model TrainingExercise {
+  id          String @id @default(uuid())
+  dayId       String @map("day_id")
+  exerciseId  String @map("exercise_id")
+  sets        Int
+  reps        Int
+  weight      Float?
+  restSeconds Int @map("rest_seconds")
+  sortOrder   Int @map("sort_order")
+  completed   Boolean @default(false)
+  day         TrainingDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  @@map("training_exercises")
+}
+
+model DietRecord {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  mealType   MealType @map("meal_type")
+  foodName   String   @map("food_name")
+  foodId     String?  @map("food_id")
+  quantity   Float
+  calories   Float
+  protein    Float
+  carbs      Float
+  fat        Float
+  recordDate DateTime @map("record_date")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id])
+  food        FoodLibrary? @relation(fields: [foodId], references: [id])
+  @@unique([userId, recordDate, mealType, foodName])
+  @@index([userId, recordDate])
+  @@map("diet_records")
+}
+
+model FoodLibrary {
+  id       String @id @default(uuid())
+  name     String @unique
+  calories Float
+  protein  Float
+  carbs    Float
+  fat      Float
+  unit     String @default("100g")
+  records  DietRecord[]
+  @@map("food_library")
+}
+
+model BodyMetric {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  weight     Float
+  bodyFat    Float    @map("body_fat")
+  height     Float
+  muscleMass Float    @map("muscle_mass")
+  bmi        Float
+  recordDate DateTime @map("record_date")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id])
+  @@unique([userId, recordDate])
+  @@map("body_metrics")
+}
+
+model BodyGoal {
+  id            String @id @default(uuid())
+  userId        String @unique @map("user_id")
+  targetWeight  Float  @map("target_weight")
+  targetBodyFat Float  @map("target_body_fat")
+  user          User   @relation(fields: [userId], references: [id])
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  @@map("body_goals")
+}
+
+model Member {
+  id         String       @id @default(uuid())
+  userId     String       @unique @map("user_id")
+  level      MemberLevel  @default(BASIC)
+  points     Int          @default(0)
+  expiryDate DateTime     @map("expiry_date")
+  status     MemberStatus @default(ACTIVE)
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  user       User         @relation(fields: [userId], references: [id])
+  @@map("members")
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  userId    String      @map("user_id")
+  action    String
+  module    AuditModule
+  targetId  String?     @map("target_id")
+  detail    Json?
+  ip        String?
+  createdAt DateTime    @default(now()) @map("created_at")
+  user      User        @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
